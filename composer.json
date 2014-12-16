@@ -1,0 +1,18 @@
+{
+  "name": "nemo64/doctrine-flysystem-bridge",
+  "type": "library",
+  "description": "Easily store file references in doctrine entities",
+  "license": "MIT",
+  "require": {
+    "php": ">=5.3.3",
+    "symfony/symfony": "~2.3",
+    "doctrine/orm": "~2.4",
+    "oneup/flysystem-bundle": "~0.4"
+  },
+  "autoload": {
+    "psr-0" : {
+      "Nemo64\\DoctrineFlysystemBundle" : ""
+    }
+  },
+  "target-dir": "Hn/DataTablesBundle"
+}
