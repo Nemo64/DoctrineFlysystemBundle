@@ -6,7 +6,7 @@
  * Time: 17:47
  */
 
-namespace Nemo64\DoctrineFlysystemBundle\FileManager;
+namespace Nemo64\DatabaseFlysystemBundle\FileManager;
 
 
 use League\Flysystem\File;

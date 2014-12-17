@@ -6,7 +6,7 @@
  * Time: 15:32
  */
 
-namespace Nemo64\DoctrineFlysystemBundle\Tests;
+namespace Nemo64\DatabaseFlysystemBundle\Tests;
 
 
 use Doctrine\Common\Annotations\AnnotationReader;
@@ -19,7 +19,7 @@ use League\Flysystem\Adapter;
 use League\Flysystem\File;
 use League\Flysystem\Filesystem;
 use League\Flysystem\FilesystemInterface;
-use Nemo64\DoctrineFlysystemBundle\Tests\Entity\TestData;
+use Nemo64\DatabaseFlysystemBundle\Tests\Entity\TestData;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -61,7 +61,7 @@ class TestBase extends WebTestCase {
         }
 
         $config = new Configuration();
-        $config->setEntityNamespaces(array('Test' => 'Nemo64\DoctrineFlysystemBundle\Tests\Entity'));
+        $config->setEntityNamespaces(array('Test' => 'Nemo64\DatabaseFlysystemBundle\Tests\Entity'));
         $config->setAutoGenerateProxyClasses(true);
         $config->setProxyDir(\sys_get_temp_dir());
         $config->setProxyNamespace('SerializerBundleTests\Entity');
@@ -87,7 +87,7 @@ class TestBase extends WebTestCase {
         $filesystem = new Filesystem(new Adapter\Local(sys_get_temp_dir() . '/flysystem' . count($this->filesystems)));
         $this->filesystems[] = $filesystem;
 
-        $filesystemListener = clone $this->container->get('nemo64_doctrine_flysystem.filesystem_listener');
+        $filesystemListener = clone $this->container->get('nemo64_database_flysystem.filesystem_listener');
         $filesystemListener->addFilesystem('my_local_tmp', $filesystem, array(
             'orphan_removal' => true
         ));

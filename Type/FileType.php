@@ -6,14 +6,14 @@
  * Time: 17:58
  */
 
-namespace Nemo64\DoctrineFlysystemBundle\Type;
+namespace Nemo64\DatabaseFlysystemBundle\Type;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\DBAL\Types\Type;
 use League\Flysystem\File;
-use Nemo64\DoctrineFlysystemBundle\EventArgs\SerializeFileEventArgs;
-use Nemo64\DoctrineFlysystemBundle\EventArgs\UnserializeFileEventArgs;
+use Nemo64\DatabaseFlysystemBundle\EventArgs\SerializeFileEventArgs;
+use Nemo64\DatabaseFlysystemBundle\EventArgs\UnserializeFileEventArgs;
 
 class FileType extends Type
 {

@@ -6,12 +6,12 @@
  * Time: 19:06
  */
 
-namespace Nemo64\DoctrineFlysystemBundle\Tests\Type;
+namespace Nemo64\DatabaseFlysystemBundle\Tests\Type;
 
 
 use League\Flysystem\Adapter;
-use Nemo64\DoctrineFlysystemBundle\Tests\TestBase;
-use Nemo64\DoctrineFlysystemBundle\Type\FileType;
+use Nemo64\DatabaseFlysystemBundle\Tests\TestBase;
+use Nemo64\DatabaseFlysystemBundle\Type\FileType;
 
 class FileTypeTest extends TestBase
 {
@@ -39,7 +39,7 @@ class FileTypeTest extends TestBase
         $em->flush();
         $em->clear();
 
-        $selectQuery = $em->createQuery('SELECT t.file, t.data FROM Test:TestData t');
+        $selectQuery = $em->createQuery('SELECT t.file, t.data FROM Test:TestData ™t');
         $result = $selectQuery->getArrayResult();
 
         $this->assertEquals(array(array('file' => $entity->getFile(), 'data' => $entity->getData())), $result);

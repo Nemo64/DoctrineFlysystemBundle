@@ -6,7 +6,7 @@
  * Time: 21:25
  */
 
-namespace Nemo64\DoctrineFlysystemBundle\EventArgs;
+namespace Nemo64\DatabaseFlysystemBundle\EventArgs;
 
 
 use Doctrine\Common\EventArgs;

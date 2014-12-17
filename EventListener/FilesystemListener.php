@@ -6,13 +6,13 @@
  * Time: 18:51
  */
 
-namespace Nemo64\DoctrineFlysystemBundle\EventListener;
+namespace Nemo64\DatabaseFlysystemBundle\EventListener;
 
 
 use Doctrine\DBAL\Types\ConversionException;
 use League\Flysystem\FilesystemInterface;
-use Nemo64\DoctrineFlysystemBundle\EventArgs\SerializeFileEventArgs;
-use Nemo64\DoctrineFlysystemBundle\EventArgs\UnserializeFileEventArgs;
+use Nemo64\DatabaseFlysystemBundle\EventArgs\SerializeFileEventArgs;
+use Nemo64\DatabaseFlysystemBundle\EventArgs\UnserializeFileEventArgs;
 
 class FilesystemListener
 {
@@ -67,7 +67,7 @@ class FilesystemListener
     {
         if (!array_key_exists($filesystemName, $this->filesystems)) {
             $msg = "Filesystem '$filesystemName' does not exist or isn't allowed to be used.\n";
-            $msg .= "Check nemo64_doctrine_flysystem.allowed_filesystems for more information.";
+            $msg .= "Check nemo64_database_flysystem.allowed_filesystems for more information.";
             throw new ConversionException($msg);
         }
 

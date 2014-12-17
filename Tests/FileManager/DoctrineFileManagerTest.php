@@ -6,11 +6,11 @@
  * Time: 21:13
  */
 
-namespace Nemo64\DoctrineFlysystemBundle\Tests\FileManager;
+namespace Nemo64\DatabaseFlysystemBundle\Tests\FileManager;
 
 
-use Nemo64\DoctrineFlysystemBundle\FileManager\DoctrineFileManager;
-use Nemo64\DoctrineFlysystemBundle\Tests\TestBase;
+use Nemo64\DatabaseFlysystemBundle\FileManager\DoctrineFileManager;
+use Nemo64\DatabaseFlysystemBundle\Tests\TestBase;
 
 class DoctrineFileManagerTest extends TestBase
 {

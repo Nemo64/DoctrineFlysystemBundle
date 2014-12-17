@@ -6,7 +6,7 @@
  * Time: 21:26
  */
 
-namespace Nemo64\DoctrineFlysystemBundle\EventArgs;
+namespace Nemo64\DatabaseFlysystemBundle\EventArgs;
 
 
 use League\Flysystem\File;

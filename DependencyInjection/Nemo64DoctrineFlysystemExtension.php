@@ -1,6 +1,6 @@
 <?php
 
-namespace Nemo64\DoctrineFlysystemBundle\DependencyInjection;
+namespace Nemo64\DatabaseFlysystemBundle\DependencyInjection;
 
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -13,7 +13,7 @@ use Symfony\Component\HttpKernel\DependencyInjection\Extension;
  *
  * To learn more see {@link http://symfony.com/doc/current/cookbook/bundles/extension.html}
  */
-class Nemo64DoctrineFlysystemExtension extends Extension
+class Nemo64DatabaseFlysystemExtension extends Extension
 {
     /**
      * {@inheritDoc}
@@ -36,7 +36,7 @@ class Nemo64DoctrineFlysystemExtension extends Extension
      */
     protected function configureFilesystemListener(ContainerBuilder $container, array $config)
     {
-        $definition = $container->getDefinition('nemo64_doctrine_flysystem.filesystem_listener');
+        $definition = $container->getDefinition('nemo64_database_flysystem.filesystem_listener');
 
         foreach ($config['filesystems'] as $filesystemName => $filesystemConfig) {
             $filesystemServiceId = 'oneup_flysystem.' . $filesystemName . '_filesystem';
@@ -52,7 +52,7 @@ class Nemo64DoctrineFlysystemExtension extends Extension
      */
     protected function configureDoctrineFileManager(ContainerBuilder $container, array $config)
     {
-        $definition = $container->getDefinition('nemo64_doctrine_flysystem.doctrine_file_manager');
+        $definition = $container->getDefinition('nemo64_database_flysystem.doctrine_file_manager');
 
         foreach ($config['doctrine_entity_managers'] as $entityManagerName) {
             $entityManagerId = 'doctrine.orm.' . $entityManagerName . '_entity_manager';

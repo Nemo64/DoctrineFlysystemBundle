@@ -6,14 +6,14 @@
  * Time: 17:48
  */
 
-namespace Nemo64\DoctrineFlysystemBundle\FileManager;
+namespace Nemo64\DatabaseFlysystemBundle\FileManager;
 
 
 use Doctrine\DBAL\Types\Type;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Mapping\ClassMetadata;
 use League\Flysystem\File;
-use Nemo64\DoctrineFlysystemBundle\Type\FileType;
+use Nemo64\DatabaseFlysystemBundle\Type\FileType;
 
 class DoctrineFileManager implements DatabaseFileManagerInterface
 {
@@ -24,7 +24,7 @@ class DoctrineFileManager implements DatabaseFileManagerInterface
 
     /**
      * @var array|null
-     * @see \Nemo64\DoctrineFlysystemBundle\FileManager\DoctrineFileManager::getEntityManagerTableFieldList
+     * @see \Nemo64\DatabaseFlysystemBundle\FileManager\DoctrineFileManager::getEntityManagerTableFieldList
      */
     private $entityManagerTableFieldList;
 

@@ -6,7 +6,7 @@
  * Time: 19:10
  */
 
-namespace Nemo64\DoctrineFlysystemBundle\Tests\Entity;
+namespace Nemo64\DatabaseFlysystemBundle\Tests\Entity;
 
 
 use Doctrine\ORM\Mapping as ORM;

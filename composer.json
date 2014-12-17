@@ -11,8 +11,8 @@
   },
   "autoload": {
     "psr-0" : {
-      "Nemo64\\DoctrineFlysystemBundle" : ""
+      "Nemo64\\DatabaseFlysystemBundle" : ""
     }
   },
-  "target-dir": "Nemo64/DoctrineFlysystemBundle"
+  "target-dir": "Nemo64/DatabaseFlysystemBundle"
 }
