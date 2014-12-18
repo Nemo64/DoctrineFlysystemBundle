@@ -1,3 +1,0 @@
-nemo64_doctrine_flysystem_homepage:
-    path:     /hello/{name}
-    defaults: { _controller: Nemo64DoctrineFlysystemBundle:Default:index }

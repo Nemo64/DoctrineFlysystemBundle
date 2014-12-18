@@ -4,6 +4,7 @@ namespace Nemo64\DoctrineFlysystemBundle\DependencyInjection;
 
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\Config\FileLocator;
+use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 use Symfony\Component\DependencyInjection\Loader;
 
@@ -24,5 +25,23 @@ class Nemo64DoctrineFlysystemExtension extends Extension
 
         $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.yml');
+
+        $this->configureFlyTypeConfigurator($container, $config);
+    }
+
+    /**
+     * @param ContainerBuilder $container
+     * @param $config
+     */
+    protected function configureFlyTypeConfigurator(ContainerBuilder $container, array $config)
+    {
+        $definition = $container->getDefinition('nemo64_doctrine_flysystem.filesystem_listener');
+
+        foreach ($config['allowed_filesystems'] as $filesystemName) {
+            $filesystemServiceId = 'oneup_flysystem.' . $filesystemName . '_filesystem';
+
+            $arguments = array($filesystemName, new Reference($filesystemServiceId));
+            $definition->addMethodCall('addFilesystem', $arguments);
+        }
     }
 }

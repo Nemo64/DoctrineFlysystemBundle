@@ -20,6 +20,11 @@ class Configuration implements ConfigurationInterface
         $treeBuilder = new TreeBuilder();
         $rootNode = $treeBuilder->root('nemo64_doctrine_flysystem');
 
+        $nodes = $rootNode->children();
+
+        $allowedFilesystemNodes = $nodes->arrayNode('allowed_filesystems');
+        $allowedFilesystemNodes->prototype('scalar');
+
         // Here you should define the parameters that are allowed to
         // configure your bundle. See the documentation linked above for
         // more information on that topic.

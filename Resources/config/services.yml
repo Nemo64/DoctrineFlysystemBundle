@@ -1,7 +1,9 @@
 parameters:
-#    nemo64_doctrine_flysystem.example.class: Nemo64\DoctrineFlysystemBundle\Example
+    nemo64_doctrine_flysystem.filesystem_listener.class: Nemo64\DoctrineFlysystemBundle\EventListener\FilesystemListener
 
 services:
-#    nemo64_doctrine_flysystem.example:
-#        class: %nemo64_doctrine_flysystem.example.class%
-#        arguments: [@service_id, "plain_value", %parameter%]
+    nemo64_doctrine_flysystem.filesystem_listener:
+        class: %nemo64_doctrine_flysystem.filesystem_listener.class%
+        tags:
+            - { name: doctrine.event_listener, event: unserializeFile }
+            - { name: doctrine.event_listener, event: serializeFile }
