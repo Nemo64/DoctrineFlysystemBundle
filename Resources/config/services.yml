@@ -1,15 +1,28 @@
 parameters:
-    nemo64_database_flysystem.filesystem_listener.class: Nemo64\DatabaseFlysystemBundle\EventListener\FilesystemListener
-    nemo64_database_flysystem.doctrine_file_manager.class: Nemo64\DatabaseFlysystemBundle\FileManager\DoctrineFileManager
+    database_flysystem.filesystem_manager.class: Nemo64\DatabaseFlysystemBundle\FileManager\FilesystemManager
+    database_flysystem.filesystem_listener.class: Nemo64\DatabaseFlysystemBundle\EventListener\FilesystemListener
+    database_flysystem.doctrine_file_manager.class: Nemo64\DatabaseFlysystemBundle\FileManager\DoctrineFileManager
+    database_flysystem.file_manager.class: Nemo64\DatabaseFlysystemBundle\FileManager\DatabaseFileManager
 
 services:
-    nemo64_database_flysystem.filesystem_listener:
-        class: %nemo64_database_flysystem.filesystem_listener.class%
+    database_flysystem.filesystem_manager:
+        class: %database_flysystem.filesystem_manager.class%
         # calls to addFilesystem will be added by dynamic configuration
+
+    database_flysystem.filesystem_listener:
+        class: %database_flysystem.filesystem_listener.class%
+        arguments: [@database_flysystem.filesystem_manager]
         tags:
             - { name: doctrine.event_listener, event: unserializeFile }
             - { name: doctrine.event_listener, event: serializeFile }
 
-    nemo64_database_flysystem.doctrine_file_manager:
-        class: %nemo64_database_flysystem.doctrine_file_manager.class%
+    database_flysystem.doctrine_file_manager:
+        class: %database_flysystem.doctrine_file_manager.class%
         # calls to addEntityManager will be added by dynamic configuration
+        private: true
+        tags:
+            - { name: database_flysystem.file_manager }
+
+    database_flysystem.file_manager:
+        class: %database_flysystem.file_manager.class%
+        # calls to addFileManager will be added by dynamic configuration

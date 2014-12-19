@@ -26,17 +26,18 @@ class Nemo64DatabaseFlysystemExtension extends Extension
         $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.yml');
 
-        $this->configureFilesystemListener($container, $config);
+        $this->configureFilesystemManager($container, $config);
         $this->configureDoctrineFileManager($container, $config);
+        $this->configureDatabaseFileManager($container);
     }
 
     /**
      * @param ContainerBuilder $container
      * @param array $config
      */
-    protected function configureFilesystemListener(ContainerBuilder $container, array $config)
+    protected function configureFilesystemManager(ContainerBuilder $container, array $config)
     {
-        $definition = $container->getDefinition('nemo64_database_flysystem.filesystem_listener');
+        $definition = $container->getDefinition('database_flysystem.filesystem_manager');
 
         foreach ($config['filesystems'] as $filesystemName => $filesystemConfig) {
             $filesystemServiceId = 'oneup_flysystem.' . $filesystemName . '_filesystem';
@@ -52,13 +53,26 @@ class Nemo64DatabaseFlysystemExtension extends Extension
      */
     protected function configureDoctrineFileManager(ContainerBuilder $container, array $config)
     {
-        $definition = $container->getDefinition('nemo64_database_flysystem.doctrine_file_manager');
+        $definition = $container->getDefinition('database_flysystem.doctrine_file_manager');
 
         foreach ($config['doctrine_entity_managers'] as $entityManagerName) {
             $entityManagerId = 'doctrine.orm.' . $entityManagerName . '_entity_manager';
 
             $arguments = array(new Reference($entityManagerId));
             $definition->addMethodCall('addEntityManager', $arguments);
+        }
+    }
+
+    /**
+     * @param ContainerBuilder $container
+     */
+    protected function configureDatabaseFileManager(ContainerBuilder $container)
+    {
+        $definition = $container->getDefinition('database_flysystem.file_manager');
+
+        foreach ($container->findTaggedServiceIds('database_flysystem.file_manager') as $managerId => $attributes) {
+            $arguments = array(new Reference($managerId));
+            $definition->addMethodCall('addFileManager', $arguments);
         }
     }
 }
