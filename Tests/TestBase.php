@@ -2,11 +2,11 @@
 /**
  * Created by PhpStorm.
  * User: marco
- * Date: 17.12.14
- * Time: 19:06
+ * Date: 19.12.14
+ * Time: 15:32
  */
 
-namespace Nemo64\DoctrineFlysystemBundle\Tests\EventListener;
+namespace Nemo64\DoctrineFlysystemBundle\Tests;
 
 
 use Doctrine\Common\Annotations\AnnotationReader;
@@ -18,22 +18,17 @@ use Doctrine\ORM\Tools\SchemaTool;
 use League\Flysystem\File;
 use League\Flysystem\Filesystem;
 use Nemo64\DoctrineFlysystemBundle\Tests\Entity\TestData;
-use League\Flysystem\Adapter;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use League\Flysystem\Adapter;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
-class HandlerListenerTest extends WebTestCase
-{
+class TestBase extends WebTestCase {
+
     /**
      * @var int
      */
     protected static $fileId = 0;
 
-    /**
-     * @var File[]
-     */
-    protected static $files = array();
-    
     /**
      * @var ContainerInterface
      */
@@ -50,13 +45,6 @@ class HandlerListenerTest extends WebTestCase
         static::$kernel->boot();
         $this->container = self::$kernel->getContainer();
         $this->filesystem = new Filesystem(new Adapter\Local(sys_get_temp_dir()));
-    }
-
-    public function tearDown()
-    {
-        foreach (self::$files as $file) {
-            $file->delete();
-        }
     }
 
     public function createTestEntityManager(array $classes)
@@ -88,29 +76,44 @@ class HandlerListenerTest extends WebTestCase
         return $em;
     }
 
-    public function createTestFile($content)
+    protected function createTestFile($content)
     {
         $path = 'file' . self::$fileId++;
+
+        if ($this->filesystem->has($path)) {
+            $this->filesystem->delete($path);
+        }
+
         $this->filesystem->write($path, $content);
+
         $file = new File($this->filesystem, $path);
-        self::$files[] = $file;
+
         return $file;
     }
 
-    public function testSaveData()
+    protected function createTestData($content)
+    {
+        $entity = new TestData($content);
+        $file = $this->createTestFile($content);
+        $entity->setData($content);
+        $entity->setFile($file);
+        return $entity;
+    }
+
+    /**
+     * @param array $entities
+     * @return EntityManager
+     */
+    protected function createTestEntityManagerWithData(array $entities)
     {
         $em = $this->createTestEntityManager(array('Test:TestData'));
 
-        $entity = new TestData('obj1');
-        $file = $this->createTestFile('hi1');
-        $entity->setData('foo1');
-        $entity->setFile($file);
+        foreach ($entities as $entity) {
+            $em->persist($entity);
+        }
 
-        $em->persist($entity);
         $em->flush();
-        $em->clear(); // important so the entity gets newly generated
-
-        $entities = $em->getRepository('Test:TestData')->findAll();
-        $this->assertEquals(array($entity), $entities);
+        $em->clear();
+        return $em;
     }
 }

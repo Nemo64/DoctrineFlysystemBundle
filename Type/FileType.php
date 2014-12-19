@@ -9,26 +9,53 @@
 namespace Nemo64\DoctrineFlysystemBundle\Type;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\DBAL\Types\StringType;
+use Doctrine\DBAL\Types\ConversionException;
+use Doctrine\DBAL\Types\Type;
 use League\Flysystem\File;
 use Nemo64\DoctrineFlysystemBundle\EventArgs\SerializeFileEventArgs;
 use Nemo64\DoctrineFlysystemBundle\EventArgs\UnserializeFileEventArgs;
-use Nemo64\DoctrineFlysystemBundle\Exception\FilesystemConversionException;
 
-class FileType extends StringType
+class FileType extends Type
 {
     const TYPE = 'flyfile';
+
+    /**
+     * Gets the SQL declaration snippet for a field of this type.
+     *
+     * @param array $fieldDeclaration The field declaration.
+     * @param \Doctrine\DBAL\Platforms\AbstractPlatform $platform The currently used database platform.
+     *
+     * @return string
+     */
+    public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform)
+    {
+        return $platform->getVarcharTypeDeclarationSQL($fieldDeclaration);
+    }
+
+    /**
+     * @param AbstractPlatform $platform
+     * @return int
+     */
+    public function getDefaultLength(AbstractPlatform $platform)
+    {
+        return $platform->getVarcharDefaultLength();
+    }
 
     /**
      * @param mixed $value
      * @param AbstractPlatform $platform
      * @return string
+     * @throws ConversionException
      */
     public function convertToDatabaseValue($value, AbstractPlatform $platform)
     {
+        if ($value === null) {
+            return null;
+        }
+
         if (!$value instanceof File) {
             $type = is_object($value) ? get_class($value) : gettype($value);
-            throw new FilesystemConversionException("Expected File, got $type");
+            throw new ConversionException("Expected File, got $type");
         }
 
         $args = new SerializeFileEventArgs($value);
@@ -36,7 +63,7 @@ class FileType extends StringType
 
         $filesystemName = $args->getFilesystemName();
         if ($filesystemName === null) {
-            throw new FilesystemConversionException("Couldn't find filesystem name for file " . $value->getPath());
+            throw new ConversionException("Couldn't find filesystem name for file " . $value->getPath());
         }
 
         return $value->getPath() . '?' . $filesystemName;
@@ -46,12 +73,21 @@ class FileType extends StringType
      * @param mixed $value
      * @param AbstractPlatform $platform
      * @return File
+     * @throws ConversionException
      */
     public function convertToPHPValue($value, AbstractPlatform $platform)
     {
+        if ($value === null) {
+            return null;
+        }
+
+        if (!is_string($value)) {
+            ConversionException::conversionFailed($value, $this->getName());
+        }
+
         $parts = explode('?', $value);
         if (count($parts) !== 2) {
-            throw new FilesystemConversionException("Couldn't convert '$value' to File Instance.");
+            ConversionException::conversionFailedFormat($value, $this->getName(), 'filename?filesystem');
         }
 
         list($path, $filesystemName) = $parts;
@@ -62,6 +98,11 @@ class FileType extends StringType
         $platform->getEventManager()->dispatchEvent('unserializeFile', $args);
 
         return $file;
+    }
+
+    public function requiresSQLCommentHint(AbstractPlatform $platform)
+    {
+        return true;
     }
 
     /**
