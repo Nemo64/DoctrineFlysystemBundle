@@ -39,7 +39,7 @@ class FileTypeTest extends TestBase
         $em->flush();
         $em->clear();
 
-        $selectQuery = $em->createQuery('SELECT t.file, t.data FROM Test:TestData ™t');
+        $selectQuery = $em->createQuery('SELECT t.file, t.data FROM Test:TestData t');
         $result = $selectQuery->getArrayResult();
 
         $this->assertEquals(array(array('file' => $entity->getFile(), 'data' => $entity->getData())), $result);
