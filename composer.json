@@ -1,5 +1,5 @@
 {
-  "name": "nemo64/doctrine-flysystem-bundle",
+  "name": "nemo64/database-flysystem-bundle",
   "type": "library",
   "description": "Easily store file references in doctrine entities",
   "license": "MIT",
