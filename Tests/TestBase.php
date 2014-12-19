@@ -15,11 +15,12 @@ use Doctrine\ORM\Configuration;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Mapping\Driver\AnnotationDriver;
 use Doctrine\ORM\Tools\SchemaTool;
+use League\Flysystem\Adapter;
 use League\Flysystem\File;
 use League\Flysystem\Filesystem;
+use League\Flysystem\FilesystemInterface;
 use Nemo64\DoctrineFlysystemBundle\Tests\Entity\TestData;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use League\Flysystem\Adapter;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class TestBase extends WebTestCase {
@@ -35,16 +36,22 @@ class TestBase extends WebTestCase {
     protected $container;
 
     /**
-     * @var Filesystem
+     * @var FilesystemInterface[]
      */
-    protected $filesystem;
+    protected $filesystems;
 
     public function setUp()
     {
         static::$kernel = static::createKernel();
         static::$kernel->boot();
         $this->container = self::$kernel->getContainer();
-        $this->filesystem = new Filesystem(new Adapter\Local(sys_get_temp_dir()));
+    }
+
+    public function tearDown()
+    {
+//        foreach ($this->filesystems as $filesystem) {
+//            $filesystem->deleteDir('.');
+//        }
     }
 
     public function createTestEntityManager(array $classes)
@@ -58,17 +65,12 @@ class TestBase extends WebTestCase {
         $config->setAutoGenerateProxyClasses(true);
         $config->setProxyDir(\sys_get_temp_dir());
         $config->setProxyNamespace('SerializerBundleTests\Entity');
-        $config->setMetadataDriverImpl(new AnnotationDriver(new AnnotationReader()));
+        $config->setMetadataDriverImpl(new AnnotationDriver(new AnnotationReader(), __DIR__ . '/Entity'));
         $config->setQueryCacheImpl(new ArrayCache());
         $config->setMetadataCacheImpl(new ArrayCache());
 
         $connection = array('driver' => 'pdo_sqlite', 'memory' => true);
         $em = EntityManager::create($connection, $config);
-
-        $filesystemListener = $this->container->get('nemo64_doctrine_flysystem.filesystem_listener');
-        $filesystemListener->addFilesystem('my_local_tmp', $this->filesystem);
-        $em->getEventManager()->addEventListener('unserializeFile', $filesystemListener);
-        $em->getEventManager()->addEventListener('serializeFile', $filesystemListener);
 
         $tool = new SchemaTool($em);
         $tool->createSchema(array_map(array($em, 'getClassMetadata'), $classes));
@@ -76,44 +78,47 @@ class TestBase extends WebTestCase {
         return $em;
     }
 
-    protected function createTestFile($content)
+    /**
+     * @param EntityManager $em
+     * @return FilesystemInterface
+     */
+    protected function createFilesystem(EntityManager $em)
+    {
+        $filesystem = new Filesystem(new Adapter\Local(sys_get_temp_dir() . '/flysystem' . count($this->filesystems)));
+        $this->filesystems[] = $filesystem;
+
+        $filesystemListener = clone $this->container->get('nemo64_doctrine_flysystem.filesystem_listener');
+        $filesystemListener->addFilesystem('my_local_tmp', $filesystem, array(
+            'orphan_removal' => true
+        ));
+
+        $em->getEventManager()->addEventListener('unserializeFile', $filesystemListener);
+        $em->getEventManager()->addEventListener('serializeFile', $filesystemListener);
+
+        return $filesystem;
+    }
+
+    protected function createTestFile($content, FilesystemInterface $filesystem)
     {
         $path = 'file' . self::$fileId++;
 
-        if ($this->filesystem->has($path)) {
-            $this->filesystem->delete($path);
+        if ($filesystem->has($path)) {
+            $filesystem->delete($path);
         }
 
-        $this->filesystem->write($path, $content);
+        $filesystem->write($path, $content);
 
-        $file = new File($this->filesystem, $path);
+        $file = new File($filesystem, $path);
 
         return $file;
     }
 
-    protected function createTestData($content)
+    protected function createTestData($content, FilesystemInterface $filesystem)
     {
         $entity = new TestData($content);
-        $file = $this->createTestFile($content);
+        $file = $this->createTestFile($content, $filesystem);
         $entity->setData($content);
         $entity->setFile($file);
         return $entity;
-    }
-
-    /**
-     * @param array $entities
-     * @return EntityManager
-     */
-    protected function createTestEntityManagerWithData(array $entities)
-    {
-        $em = $this->createTestEntityManager(array('Test:TestData'));
-
-        foreach ($entities as $entity) {
-            $em->persist($entity);
-        }
-
-        $em->flush();
-        $em->clear();
-        return $em;
     }
 }

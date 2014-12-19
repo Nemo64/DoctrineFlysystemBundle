@@ -2,11 +2,11 @@
 
 namespace Nemo64\DoctrineFlysystemBundle\DependencyInjection;
 
-use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\Config\FileLocator;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Loader;
 use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\HttpKernel\DependencyInjection\Extension;
-use Symfony\Component\DependencyInjection\Loader;
 
 /**
  * This is the class that loads and manages your bundle configuration
@@ -26,22 +26,39 @@ class Nemo64DoctrineFlysystemExtension extends Extension
         $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.yml');
 
-        $this->configureFlyTypeConfigurator($container, $config);
+        $this->configureFilesystemListener($container, $config);
+        $this->configureDoctrineFileManager($container, $config);
     }
 
     /**
      * @param ContainerBuilder $container
-     * @param $config
+     * @param array $config
      */
-    protected function configureFlyTypeConfigurator(ContainerBuilder $container, array $config)
+    protected function configureFilesystemListener(ContainerBuilder $container, array $config)
     {
         $definition = $container->getDefinition('nemo64_doctrine_flysystem.filesystem_listener');
 
-        foreach ($config['allowed_filesystems'] as $filesystemName) {
+        foreach ($config['filesystems'] as $filesystemName => $filesystemConfig) {
             $filesystemServiceId = 'oneup_flysystem.' . $filesystemName . '_filesystem';
 
-            $arguments = array($filesystemName, new Reference($filesystemServiceId));
+            $arguments = array($filesystemName, new Reference($filesystemServiceId), $filesystemConfig);
             $definition->addMethodCall('addFilesystem', $arguments);
+        }
+    }
+
+    /**
+     * @param ContainerBuilder $container
+     * @param array $config
+     */
+    protected function configureDoctrineFileManager(ContainerBuilder $container, array $config)
+    {
+        $definition = $container->getDefinition('nemo64_doctrine_flysystem.doctrine_file_manager');
+
+        foreach ($config['doctrine_entity_managers'] as $entityManagerName) {
+            $entityManagerId = 'doctrine.orm.' . $entityManagerName . '_entity_manager';
+
+            $arguments = array(new Reference($entityManagerId));
+            $definition->addMethodCall('addEntityManager', $arguments);
         }
     }
 }

@@ -6,19 +6,24 @@
  * Time: 19:06
  */
 
-namespace Nemo64\DoctrineFlysystemBundle\Tests\EventListener;
+namespace Nemo64\DoctrineFlysystemBundle\Tests\Type;
 
 
 use League\Flysystem\Adapter;
 use Nemo64\DoctrineFlysystemBundle\Tests\TestBase;
 use Nemo64\DoctrineFlysystemBundle\Type\FileType;
 
-class FilesystemListenerTest extends TestBase
+class FileTypeTest extends TestBase
 {
     public function testSaveAndReceiveData()
     {
-        $entity = $this->createTestData('Per guest prepare two and a half teaspoons of honey with warmed zucchini for dessert.');
-        $em = $this->createTestEntityManagerWithData(array($entity));
+        $em = $this->createTestEntityManager(array('Test:TestData'));
+        $filesystem = $this->createFilesystem($em);
+        $entity = $this->createTestData('Per guest prepare two and a half teaspoons of honey with warmed zucchini for dessert.', $filesystem);
+
+        $em->persist($entity);
+        $em->flush();
+        $em->clear();
 
         $entities = $em->getRepository('Test:TestData')->findAll();
         $this->assertEquals(array($entity), $entities);
@@ -26,8 +31,13 @@ class FilesystemListenerTest extends TestBase
 
     public function testArrayResult()
     {
-        $entity = $this->createTestData('Observare inciviliter ducunt ad noster demolitione.');
-        $em = $this->createTestEntityManagerWithData(array($entity));
+        $em = $this->createTestEntityManager(array('Test:TestData'));
+        $filesystem = $this->createFilesystem($em);
+        $entity = $this->createTestData('Observare inciviliter ducunt ad noster demolitione.', $filesystem);
+
+        $em->persist($entity);
+        $em->flush();
+        $em->clear();
 
         $selectQuery = $em->createQuery('SELECT t.file, t.data FROM Test:TestData t');
         $result = $selectQuery->getArrayResult();
@@ -37,8 +47,13 @@ class FilesystemListenerTest extends TestBase
 
     public function testSelectByFile()
     {
-        $entity = $this->createTestData('Ellipse at the port that is when solid captains experiment.');
-        $em = $this->createTestEntityManagerWithData(array($entity));
+        $em = $this->createTestEntityManager(array('Test:TestData'));
+        $filesystem = $this->createFilesystem($em);
+        $entity = $this->createTestData('Ellipse at the port that is when solid captains experiment.', $filesystem);
+
+        $em->persist($entity);
+        $em->flush();
+        $em->clear();
 
         $selectQuery = $em->createQuery('SELECT t.file FROm Test:TestData t WHERE t.file = :file');
         $selectQuery->setParameter('file', $entity->getFile(), FileType::TYPE);

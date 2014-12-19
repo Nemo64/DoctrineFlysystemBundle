@@ -9,25 +9,29 @@
 namespace Nemo64\DoctrineFlysystemBundle\EventListener;
 
 
-use League\Flysystem\Filesystem;
+use Doctrine\DBAL\Types\ConversionException;
+use League\Flysystem\FilesystemInterface;
 use Nemo64\DoctrineFlysystemBundle\EventArgs\SerializeFileEventArgs;
 use Nemo64\DoctrineFlysystemBundle\EventArgs\UnserializeFileEventArgs;
-use Nemo64\DoctrineFlysystemBundle\Exception\FilesystemConversionException;
 
 class FilesystemListener
 {
     /**
-     * @var Filesystem[]
+     * @var array
      */
-    private $allowedFilesystems = array();
+    private $filesystems = array();
 
     /**
      * @param string $name
-     * @param Filesystem $filesystem
+     * @param FilesystemInterface $filesystem
+     * @param array $config
      */
-    public function addFilesystem($name, Filesystem $filesystem)
+    public function addFilesystem($name, FilesystemInterface $filesystem, array $config)
     {
-        $this->allowedFilesystems[$name] = $filesystem;
+        $this->filesystems[$name] = array(
+            'filesystem' => $filesystem,
+            'config' => $config
+        );
     }
 
     /**
@@ -56,32 +60,34 @@ class FilesystemListener
 
     /**
      * @param string $filesystemName
-     * @return Filesystem
+     * @return FilesystemInterface
+     * @throws ConversionException
      */
     protected function getFilesystem($filesystemName)
     {
-        if (!array_key_exists($filesystemName, $this->allowedFilesystems)) {
+        if (!array_key_exists($filesystemName, $this->filesystems)) {
             $msg = "Filesystem '$filesystemName' does not exist or isn't allowed to be used.\n";
             $msg .= "Check nemo64_doctrine_flysystem.allowed_filesystems for more information.";
-            throw new FilesystemConversionException($msg);
+            throw new ConversionException($msg);
         }
 
-        return $this->allowedFilesystems[$filesystemName];
+        return $this->filesystems[$filesystemName]['filesystem'];
     }
 
     /**
-     * @param Filesystem $filesystem
+     * @param FilesystemInterface $filesystem
      * @return string
+     * @throws ConversionException
      */
-    protected function getFilesystemName(Filesystem $filesystem)
+    protected function getFilesystemName(FilesystemInterface $filesystem)
     {
-        $name = array_search($filesystem, $this->allowedFilesystems);
-
-        if ($name === false) {
-            $msg = "The filesystem is not in the list of allowed Filesystems.";
-            throw new FilesystemConversionException($msg);
+        foreach ($this->filesystems as $name => $filesystemEntry) {
+            if ($filesystemEntry['filesystem'] === $filesystem) {
+                return $name;
+            }
         }
 
-        return $name;
+        $msg = "The filesystem is not in the list of allowed Filesystems.";
+        throw new ConversionException($msg);
     }
 }

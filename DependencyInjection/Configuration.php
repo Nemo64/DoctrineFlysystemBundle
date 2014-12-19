@@ -2,6 +2,7 @@
 
 namespace Nemo64\DoctrineFlysystemBundle\DependencyInjection;
 
+use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
@@ -22,8 +23,14 @@ class Configuration implements ConfigurationInterface
 
         $nodes = $rootNode->children();
 
-        $allowedFilesystemNodes = $nodes->arrayNode('allowed_filesystems');
-        $allowedFilesystemNodes->prototype('scalar');
+        $doctrineEntityManagerNode = $nodes->arrayNode('doctrine_entity_managers');
+        $doctrineEntityManagerNode->prototype('scalar');
+
+        $allowedFilesystemNode = $nodes->arrayNode('filesystems')->useAttributeAsKey('name');
+        /** @var NodeBuilder $allowedFilesystemNodes */
+        /** @noinspection PhpUndefinedMethodInspection */
+        $allowedFilesystemNodes = $allowedFilesystemNode->prototype('array')->children();
+        $allowedFilesystemNodes->booleanNode('orphan_removal')->isRequired();
 
         // Here you should define the parameters that are allowed to
         // configure your bundle. See the documentation linked above for
