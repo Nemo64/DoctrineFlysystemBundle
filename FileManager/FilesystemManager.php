@@ -38,8 +38,8 @@ class FilesystemManager implements FilesystemManagerInterface
     {
         $result = array();
 
-        foreach ($this->filesystems as $filesystemEntry) {
-            $result[] = $filesystemEntry['filesystem'];
+        foreach ($this->filesystems as $name => $filesystemEntry) {
+            $result[$name] = $filesystemEntry['filesystem'];
         }
 
         return $result;
@@ -52,13 +52,13 @@ class FilesystemManager implements FilesystemManagerInterface
     {
         $result = array();
 
-        foreach ($this->filesystems as $filesystemEntry) {
+        foreach ($this->filesystems as $name => $filesystemEntry) {
 
             if (!$filesystemEntry['config']['orphan_removal']) {
                 continue;
             }
 
-            $result[] = $filesystemEntry['filesystem'];
+            $result[$name] = $filesystemEntry['filesystem'];
         }
 
         return $result;
