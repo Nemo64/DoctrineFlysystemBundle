@@ -19,6 +19,15 @@ class FileType extends Type
 {
     const TYPE = 'flyfile';
 
+    // /usr/src/linux-headers-2.6.38-10/include/linux/limits.h
+    //   #define NAME_MAX         255    /* # chars in a file name */
+    //   #define PATH_MAX        4096    /* # chars in a path name including nul */
+    // it is very unlikely that there will be longer paths needed.
+    const MAX_NAME_LENGTH = 255;
+    const MAX_PATH_LENGTH = 4095; // -1 because there is no nul in sql/php
+    const MAX_FS_LENGTH = 255;
+    const MAX_COMBINED_LENGTH = 4351; // path length + fs length + 1 combination character
+
     /**
      * Gets the SQL declaration snippet for a field of this type.
      *
@@ -29,6 +38,9 @@ class FileType extends Type
      */
     public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform)
     {
+        if ($fieldDeclaration['length'] === null) {
+            $fieldDeclaration['length'] = $this->getDefaultLength($platform);
+        }
         return $platform->getVarcharTypeDeclarationSQL($fieldDeclaration);
     }
 
@@ -38,7 +50,7 @@ class FileType extends Type
      */
     public function getDefaultLength(AbstractPlatform $platform)
     {
-        return $platform->getVarcharDefaultLength();
+        return min(self::MAX_COMBINED_LENGTH, $platform->getVarcharMaxLength());
     }
 
     /**
